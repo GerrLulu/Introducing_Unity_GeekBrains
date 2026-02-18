@@ -12,20 +12,25 @@ namespace Player
     public class Protagonist : MonoBehaviour, IMineExplosion, IBulletDamage
     {
         [SerializeField] private int _hp = 100;
+
         [SerializeField] private float _speed = 0.1f;
         [SerializeField] private float _boost = 1.5f;
         [SerializeField] private float _sensHorizontal = 7f;
         [SerializeField] private float _forceJump = 300f;
         [SerializeField] private float _accelerationAnim = 0.1f;
         [SerializeField] private float _decelerationAnim = 0.5f;
+
         [SerializeField] private GameObject _bulletPrefub;
         [SerializeField] private GameObject _minePrefab;
         [SerializeField] private GameObject _blueCardImg;
         [SerializeField] private GameObject _panelHP;
         [SerializeField] private GameObject _panelMenuPause;
+
         [SerializeField] private Transform _spawnBullet;
         [SerializeField] private Transform _spawnPointMine;
+
         [SerializeField] private Slider _sliderHP;
+
         [SerializeField] private AudioSource _audioShoot;
         [SerializeField] private AudioSource _audioWalk;
         [SerializeField] private AudioSource _audioRun;

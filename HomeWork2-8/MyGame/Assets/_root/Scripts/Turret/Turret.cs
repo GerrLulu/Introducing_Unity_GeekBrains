@@ -7,11 +7,13 @@ namespace Turret
     public class Turret : MonoBehaviour
     {
         [SerializeField] private int _hp = 100;
+        [SerializeField] private int _countBullets = 5;
+
         [SerializeField] private float _rotationIdleSpeed;
         [SerializeField] private float _rotationAtackSpeed;
         [SerializeField] private float _timeReload = 5f;
         [SerializeField] private float _timeBetweenShots = 0.5f;
-        [SerializeField] private int _countBullets = 5;
+
         [SerializeField] private Transform _neckTurret;
         [SerializeField] private Transform _spawnBullets;
         [SerializeField] private Protagonist _player;
