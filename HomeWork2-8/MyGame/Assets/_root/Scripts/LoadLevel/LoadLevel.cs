@@ -8,9 +8,7 @@ namespace Level
         private void OnTriggerEnter(Collider other)
         {
             if (other.tag == "Player")
-            {
                 SceneManager.LoadScene(2);
-            }
         }
     }
 }

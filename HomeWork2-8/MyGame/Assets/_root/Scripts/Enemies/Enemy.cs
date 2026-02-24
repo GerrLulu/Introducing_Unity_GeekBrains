@@ -1,6 +1,7 @@
 using Bullet;
 using MineItem;
 using Player;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,19 +9,30 @@ namespace Enemies
 {
     public class Enemy : MonoBehaviour, IMineExplosion, IBulletDamage
     {
-        [SerializeField] private int _hp = 100;
-        [SerializeField] private int _damage = 5;
-        [SerializeField] private float _huntingDistance = 5f;
-        [SerializeField] private float _atackDistance = 0.5f;
+        [SerializeField] private int _hp;
+        [SerializeField] private int _damage;
+        [SerializeField] private int _timeToDestroy;
+
+        [SerializeField] private float _huntingDistance;
+        [SerializeField] private float _attackDistance;
+
+        [SerializeField] private GameObject _attackZone;
 
         [SerializeField] private Transform[] _wayPoints;
         [SerializeField] private Transform _eyePosition;
+
         [SerializeField] private Protagonist _protagonist;
 
         private int m_CurrentWaypointIndex;
+
+        private bool _isDead;
+
         private Ray _rayToPlayer;
+        
         private Rigidbody _rb;
+        
         private NavMeshAgent _agent;
+        
         private Animator _animator;
 
 
@@ -33,8 +45,11 @@ namespace Enemies
 
         private void Start()
         {
+            _isDead = false;
+
             _agent.SetDestination(_wayPoints[0].position);
-        }
+        } 
+            
 
         private void FixedUpdate()
         {
@@ -45,33 +60,41 @@ namespace Enemies
             _rayToPlayer = new Ray(_eyePosition.position, direction);
             Physics.Raycast(_rayToPlayer, out hit);
 
-            if (hit.collider != null)
+            if (hit.collider != null || _isDead == false)
             {
                 if (hit.distance <= _huntingDistance)
                 {
-                    _agent.SetDestination(_protagonist.transform.position);
                     Debug.DrawRay(_eyePosition.position, direction, Color.red);
 
-                    _animator.SetBool("IsRun", true);
-
-                    if (hit.distance <= _atackDistance)
-                        _animator.SetBool("IsAtack", true);
-                    else
-                        _animator.SetBool("IsAtack", false);
+                    AttackRun(hit);
                 }
                 else
                 {
-                    Patrol();
                     Debug.DrawRay(_eyePosition.position, direction, Color.green);
-
-                    _animator.SetBool("IsRun", false);
+                    
+                    Patrol();
                 }
             }
         }
 
 
+        private void AttackRun(RaycastHit hit)
+        {
+            _animator.SetBool("IsRun", true);
+            _agent.SetDestination(_protagonist.transform.position);
+
+            if (hit.distance <= _attackDistance)
+                _animator.SetBool("IsAttack", true);
+            else
+                _animator.SetBool("IsAttack", false);
+        }
+
+        private void Attack() => _protagonist.Hit(_damage);
+
         private void Patrol()
         {
+            _animator.SetBool("IsRun", false);
+
             if (_agent.remainingDistance < _agent.stoppingDistance)
             {
                 m_CurrentWaypointIndex = (m_CurrentWaypointIndex + 1) % _wayPoints.Length;
@@ -79,37 +102,34 @@ namespace Enemies
             }
         }
 
-        public void Hit(int damage)
-        {
-            _hp = _hp - damage;
-            Debug.Log($"{gameObject.name} HP: {_hp}");
-            DieEnemy(_hp);
-        }
+        public void Hit(int damage) => ChangeHealthPoint(damage);
 
         public void MineHit(int damage, float force, Vector3 positionMine)
         {
-            _hp = _hp - damage;
-            Debug.Log($"{gameObject.name} HP: {_hp}");
+            ChangeHealthPoint(damage);
 
             var positionImpulse = new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z);
             Vector3 direction = positionImpulse - positionMine;
             _rb.AddForce(direction.normalized * force, ForceMode.Impulse);
-
-            DieEnemy(_hp);
         }
 
-        private void Atack(int damage)
+        private void ChangeHealthPoint(int changeHP)
         {
-            _protagonist.Hp -= damage;
-        }
+            _hp = _hp + changeHP;
 
-        private void DieEnemy(int hp)
-        {
-            if (hp <= 0)
+            if (_hp <= 0)
             {
+                _isDead = true;
                 _animator.SetTrigger("Die");
-                Destroy(gameObject);
+                StartCoroutine(DestroyEnemy());
             }
+        }
+
+
+        private IEnumerator DestroyEnemy()
+        {
+            yield return new WaitForSeconds(_timeToDestroy);
+            Destroy(gameObject);
         }
     }
 }

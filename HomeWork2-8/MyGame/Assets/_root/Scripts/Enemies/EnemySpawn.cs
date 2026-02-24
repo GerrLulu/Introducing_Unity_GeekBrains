@@ -7,9 +7,6 @@ namespace Enemies
         [SerializeField] private GameObject _enemyPrefab;
 
 
-        private void Start()
-        {
-            Instantiate(_enemyPrefab, transform.position, Quaternion.identity);
-        }
+        private void Start() => Instantiate(_enemyPrefab, transform.position, Quaternion.identity);
     }
 }

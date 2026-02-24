@@ -9,26 +9,20 @@ namespace Menu
         [SerializeField] Button _buttonStartGame;
 
 
-        private void Start()
-        {
-            _buttonStartGame.onClick.AddListener(StartGame);
-        }
+        private void Start() => _buttonStartGame.onClick.AddListener(StartGame);
+
+        private void OnDestroy() => _buttonStartGame.onClick.RemoveListener(StartGame);
 
 
-        void StartGame()
-        {
-            SceneManager.LoadScene(1);
-        }
+        void StartGame() => SceneManager.LoadScene(1);
 
         void Quit()
         {
-            Application.Quit();
-        }
-
-
-        private void OnDestroy()
-        {
-            _buttonStartGame.onClick.RemoveListener(StartGame);
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
         }
     }
 }

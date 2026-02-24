@@ -10,10 +10,7 @@ namespace Doors
         private Animation _anim;
 
 
-        private void Awake()
-        {
-            _anim = GetComponent<Animation>();
-        }
+        private void Awake() => _anim = GetComponent<Animation>();
 
         private void OnTriggerEnter(Collider other)
         {

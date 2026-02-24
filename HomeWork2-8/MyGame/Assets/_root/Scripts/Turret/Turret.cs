@@ -6,27 +6,41 @@ namespace Turret
 {
     public class Turret : MonoBehaviour
     {
-        [SerializeField] private int _hp = 100;
-        [SerializeField] private int _countBullets = 5;
+        [SerializeField] private int _hp;
+        [SerializeField] private int _countBullets;
 
         [SerializeField] private float _rotationIdleSpeed;
         [SerializeField] private float _rotationAtackSpeed;
-        [SerializeField] private float _timeReload = 5f;
-        [SerializeField] private float _timeBetweenShots = 0.5f;
+        [SerializeField] private float _timeReload;
+        [SerializeField] private float _timeBetweenShots;
 
         [SerializeField] private Transform _neckTurret;
         [SerializeField] private Transform _spawnBullets;
+
         [SerializeField] private Protagonist _player;
+
         [SerializeField] private GameObject _bulletPrefab;
 
+
+        private int _currentBullets;
+
+        private float _distanceFire;
+        
         private bool _isIdle;
         private bool _isShoot;
-        private int _currentBullets;
-        private float _distanceFire;
+        private bool _isDead;
+
+        private Animation _anim;
+        
+        private AudioSource _audioShoot;
+
+        private ParticleSystem _particleSystem;
+
         private Transform _target;
+        
         private Ray _directionFire;
         private RaycastHit _hit;
-        private AudioSource _audioShoot;
+
 
         public int Hp
         {
@@ -38,6 +52,8 @@ namespace Turret
         private void Awake()
         {
             _audioShoot = GetComponent<AudioSource>();
+            _anim = GetComponent<Animation>();
+            _particleSystem = GetComponentInChildren<ParticleSystem>();
         }
 
         private void Start()
@@ -65,13 +81,12 @@ namespace Turret
 
         private void FixedUpdate()
         {
-            if (_isIdle)
+            if (_isDead == false)
             {
-                Patrol();
-            }
-            else
-            {
-                Atack();
+                if (_isIdle)
+                    Patrol();
+                else
+                    Atack();
             }
         }
 
@@ -108,6 +123,15 @@ namespace Turret
             
             _isShoot = false;
         }
+
+        public void TurretDestruction()
+        {
+            _isDead = true;
+            _anim.Play("Destruction");
+            StopCoroutine(Shooting());
+            _particleSystem.Play(true);
+        }
+
 
         private IEnumerator Shooting()
         {
