@@ -60,7 +60,7 @@ namespace Enemies
             _rayToPlayer = new Ray(_eyePosition.position, direction);
             Physics.Raycast(_rayToPlayer, out hit);
 
-            if (hit.collider != null || _isDead == false)
+            if (hit.collider != null && _isDead == false)
             {
                 if (hit.distance <= _huntingDistance)
                 {
